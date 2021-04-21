@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<title>Login</title>
+	<link rel="stylesheet" href="../static/style.css">
+  </head>
+  <body>
+    <h1>Sign in</h1>
+	<div class="flex-container">
+	  <div class="flex-item">
+	    <form method="POST" action="/">
+		  <label for="name">Username:</label>
+	      <input type="text" name="name" id="name">
+	      <br><br>
+	      <label for="password">Password:</label>
+	      <input type="password" name="password" id="password">
+	      <br><br>
+	      <input type="submit" value="Submit">
+        </form>
+	  </div>
+	  <div class="flex-item"><img src="../static/welcome.jpg"></div>
+	  <div class="flex-item"><a href="/register">Sign up</a></div>
+	</div>
+  </body>
+</html>
