@@ -1,20 +1,49 @@
-from flask import Flask, render_template, request, make_response, redirect, abort
+from flask import Flask, flash, render_template, request, make_response, redirect, abort, send_from_directory
 import random
 from pymongo import MongoClient 
+import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'upload'
+app.config['SECRET_KEY']= 'the secret string'
+
 client = MongoClient('localhost',27017)
 db = client.wad
 
 logged_users = {}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-@app.route('/cabinet')
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           
+
+@app.route('/cabinet', methods=["GET", "POST"])
 def cabinet():
     if request.cookies:
         sessionid = request.cookies["sessionid"] 
         if sessionid not in logged_users:
             abort(403)
-        return render_template("cabinet.html", name=logged_users[sessionid])
+        username = logged_users[sessionid]
+        
+        if request.method == "POST":
+            if 'file' not in request.files:
+                flash('No file part')
+                return redirect(request.url)
+            file = request.files['file']
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                flash('Successfully saved', 'success')
+                imgname = "upload/"+filename
+                db.users.update({"name":username}, {"$set": {"img": imgname}})
+                return redirect(request.url)
+        return render_template("cabinet.html", name=username, picture=db.users.find_one({"name":username})['img'])
     else:
         abort(403)
 
@@ -29,9 +58,7 @@ def login():
         if request.cookies:
             if request.cookies["sessionid"] in logged_users:
                return "You have already logged in"
-        if not db.users.find_one({"name":username}) : 
-            return render_template("login.html")
-        if not db.users.find_one({"name":username, "password":psw}):
+        if ( not db.users.find_one({"name":username})) or (not db.users.find_one({"name":username, "password":psw})) : 
             return render_template("login.html")
             
         sessionid = str(random.randint(10**10, 10**20))
@@ -53,13 +80,21 @@ def register():
             return "This name is already taken"
         if psw1 != psw2:
             return "Passwords are not equal!"
-        db.users.insert({"name":username, "password":psw1})
+        db.users.insert({"name":username, "password":psw1, "img":"static/lion with computer.jpg"})
         return render_template("login.html")
 
 
 @app.route('/static/<path:filename>')
 def send_from_static(filename):
     return app.send_static_file(filename)
+    
+@app.route('/upload/<path:filename>')
+def send_from_upload(filename):
+    return send_from_directory("upload", filename)
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory("static", "icons8-lion-100.png", mimetype="image/vnd.microsoft.icon")
     
     
 @app.route('/logout', methods=["GET"])

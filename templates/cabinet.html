@@ -8,7 +8,17 @@
     <h1>Cabinet</h1>
 	<div class="flex-container">
 	  <div class="flex-item"><p>Hello, {{name}}!</p></div>
-	  <div class="flex-item"><img src="../static/lion with computer.jpg"></div>
+	  <div class="flex-item"><img src="../{{picture}}"></div>
+	  <div class="flex-item">
+		<p>Upload new avatar</p>
+	    <form method="POST" enctype="multipart/form-data" action="/cabinet">
+		  <input type="file" name="file">
+		  <input type="submit" value="Upload">
+		</form>
+		<! --{% for mesg in get_flashed_messages() %}
+		<h1>{{ mesg }}</h1>
+		{% endfor %} -->
+	  </div>
 	  <div class="flex-item"><a href="/logout">Logout</a></div>
 	</div>
   </body>
