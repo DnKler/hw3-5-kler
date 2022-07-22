@@ -1,4 +1,4 @@
-# hw3-5-kler-nkodia
+# hw3-5-kler
 Repository for Optional part of Homework #3 (https://wad.itmo.xyz/assignments/homework3.html), Homework #4 (https://wad.itmo.xyz/assignments/homework4.html) and Homework #5 (https://wad.itmo.xyz/assignments/homework5.html). Author: Nkodia Kler, N41513c
 
 ## Completed steps:
